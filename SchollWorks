@@ -1,0 +1,3026 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "1cdeaff4-2de3-46b8-8c9c-c93efefd3843",
+   "metadata": {},
+   "source": [
+    "# Práctica 5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "1bc89ac0-bd84-41fc-964a-6dfab00dacbf",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "        <script type=\"text/javascript\">\n",
+       "        window.PlotlyConfig = {MathJaxConfig: 'local'};\n",
+       "        if (window.MathJax) {MathJax.Hub.Config({SVG: {font: \"STIX-Web\"}});}\n",
+       "        if (typeof require !== 'undefined') {\n",
+       "        require.undef(\"plotly\");\n",
+       "        requirejs.config({\n",
+       "            paths: {\n",
+       "                'plotly': ['https://cdn.plot.ly/plotly-2.4.2.min']\n",
+       "            }\n",
+       "        });\n",
+       "        require(['plotly'], function(Plotly) {\n",
+       "            window._Plotly = Plotly;\n",
+       "        });\n",
+       "        }\n",
+       "        </script>\n",
+       "        "
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import cufflinks as cf\n",
+    "\n",
+    "cf.go_offline()\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b24978e7-29e2-43db-852f-f628377eecb2",
+   "metadata": {},
+   "source": [
+    "## Datos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "bf5b5b9e-df48-4f69-aabe-f8e0521dddc2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df= pd.read_csv(\"OnlineNewsPopularity.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "869d58f3-a88e-43ee-85a1-322046d7ba1a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>url</th>\n",
+       "      <th>timedelta</th>\n",
+       "      <th>n_tokens_title</th>\n",
+       "      <th>n_tokens_content</th>\n",
+       "      <th>n_unique_tokens</th>\n",
+       "      <th>n_non_stop_words</th>\n",
+       "      <th>n_non_stop_unique_tokens</th>\n",
+       "      <th>num_hrefs</th>\n",
+       "      <th>num_self_hrefs</th>\n",
+       "      <th>num_imgs</th>\n",
+       "      <th>...</th>\n",
+       "      <th>min_positive_polarity</th>\n",
+       "      <th>max_positive_polarity</th>\n",
+       "      <th>avg_negative_polarity</th>\n",
+       "      <th>min_negative_polarity</th>\n",
+       "      <th>max_negative_polarity</th>\n",
+       "      <th>title_subjectivity</th>\n",
+       "      <th>title_sentiment_polarity</th>\n",
+       "      <th>abs_title_subjectivity</th>\n",
+       "      <th>abs_title_sentiment_polarity</th>\n",
+       "      <th>shares</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>4487</th>\n",
+       "      <td>http://mashable.com/2013/03/27/twitter-ad-reve...</td>\n",
+       "      <td>652.0</td>\n",
+       "      <td>12.0</td>\n",
+       "      <td>232.0</td>\n",
+       "      <td>0.463303</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.562963</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>0.5</td>\n",
+       "      <td>-0.122222</td>\n",
+       "      <td>-0.166667</td>\n",
+       "      <td>-0.10</td>\n",
+       "      <td>0.200000</td>\n",
+       "      <td>0.050000</td>\n",
+       "      <td>0.300000</td>\n",
+       "      <td>0.050000</td>\n",
+       "      <td>1800</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3779</th>\n",
+       "      <td>http://mashable.com/2013/03/14/6-questions-tou...</td>\n",
+       "      <td>665.0</td>\n",
+       "      <td>8.0</td>\n",
+       "      <td>668.0</td>\n",
+       "      <td>0.501529</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.678851</td>\n",
+       "      <td>8.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.050000</td>\n",
+       "      <td>0.9</td>\n",
+       "      <td>-0.112500</td>\n",
+       "      <td>-0.125000</td>\n",
+       "      <td>-0.10</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>821</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>24442</th>\n",
+       "      <td>http://mashable.com/2014/04/30/mobile-tech-mil...</td>\n",
+       "      <td>253.0</td>\n",
+       "      <td>13.0</td>\n",
+       "      <td>442.0</td>\n",
+       "      <td>0.619816</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.806818</td>\n",
+       "      <td>6.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.033333</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>-0.346212</td>\n",
+       "      <td>-0.700000</td>\n",
+       "      <td>-0.10</td>\n",
+       "      <td>0.493750</td>\n",
+       "      <td>-0.056250</td>\n",
+       "      <td>0.006250</td>\n",
+       "      <td>0.056250</td>\n",
+       "      <td>691</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>35351</th>\n",
+       "      <td>http://mashable.com/2014/10/23/collaborating-i...</td>\n",
+       "      <td>76.0</td>\n",
+       "      <td>11.0</td>\n",
+       "      <td>128.0</td>\n",
+       "      <td>0.722222</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.884058</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.136364</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>-0.550000</td>\n",
+       "      <td>-0.600000</td>\n",
+       "      <td>-0.50</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>13700</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6879</th>\n",
+       "      <td>http://mashable.com/2013/05/15/ben-crane-twitt...</td>\n",
+       "      <td>603.0</td>\n",
+       "      <td>12.0</td>\n",
+       "      <td>521.0</td>\n",
+       "      <td>0.556911</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.700935</td>\n",
+       "      <td>26.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>-0.429167</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-0.05</td>\n",
+       "      <td>0.552273</td>\n",
+       "      <td>0.243182</td>\n",
+       "      <td>0.052273</td>\n",
+       "      <td>0.243182</td>\n",
+       "      <td>1100</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>5 rows × 61 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                     url  timedelta  \\\n",
+       "4487   http://mashable.com/2013/03/27/twitter-ad-reve...      652.0   \n",
+       "3779   http://mashable.com/2013/03/14/6-questions-tou...      665.0   \n",
+       "24442  http://mashable.com/2014/04/30/mobile-tech-mil...      253.0   \n",
+       "35351  http://mashable.com/2014/10/23/collaborating-i...       76.0   \n",
+       "6879   http://mashable.com/2013/05/15/ben-crane-twitt...      603.0   \n",
+       "\n",
+       "       n_tokens_title  n_tokens_content  n_unique_tokens  n_non_stop_words  \\\n",
+       "4487             12.0             232.0         0.463303               1.0   \n",
+       "3779              8.0             668.0         0.501529               1.0   \n",
+       "24442            13.0             442.0         0.619816               1.0   \n",
+       "35351            11.0             128.0         0.722222               1.0   \n",
+       "6879             12.0             521.0         0.556911               1.0   \n",
+       "\n",
+       "       n_non_stop_unique_tokens  num_hrefs  num_self_hrefs  num_imgs  ...  \\\n",
+       "4487                   0.562963        3.0             2.0       1.0  ...   \n",
+       "3779                   0.678851        8.0             4.0       1.0  ...   \n",
+       "24442                  0.806818        6.0             4.0       3.0  ...   \n",
+       "35351                  0.884058        1.0             1.0       1.0  ...   \n",
+       "6879                   0.700935       26.0             3.0       1.0  ...   \n",
+       "\n",
+       "       min_positive_polarity  max_positive_polarity  avg_negative_polarity  \\\n",
+       "4487                0.100000                    0.5              -0.122222   \n",
+       "3779                0.050000                    0.9              -0.112500   \n",
+       "24442               0.033333                    1.0              -0.346212   \n",
+       "35351               0.136364                    1.0              -0.550000   \n",
+       "6879                0.100000                    1.0              -0.429167   \n",
+       "\n",
+       "       min_negative_polarity  max_negative_polarity  title_subjectivity  \\\n",
+       "4487               -0.166667                  -0.10            0.200000   \n",
+       "3779               -0.125000                  -0.10            0.000000   \n",
+       "24442              -0.700000                  -0.10            0.493750   \n",
+       "35351              -0.600000                  -0.50            0.000000   \n",
+       "6879               -1.000000                  -0.05            0.552273   \n",
+       "\n",
+       "       title_sentiment_polarity  abs_title_subjectivity  \\\n",
+       "4487                   0.050000                0.300000   \n",
+       "3779                   0.000000                0.500000   \n",
+       "24442                 -0.056250                0.006250   \n",
+       "35351                  0.000000                0.500000   \n",
+       "6879                   0.243182                0.052273   \n",
+       "\n",
+       "       abs_title_sentiment_polarity  shares  \n",
+       "4487                       0.050000    1800  \n",
+       "3779                       0.000000     821  \n",
+       "24442                      0.056250     691  \n",
+       "35351                      0.000000   13700  \n",
+       "6879                       0.243182    1100  \n",
+       "\n",
+       "[5 rows x 61 columns]"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.sample(5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "b13c0a90-84da-43c4-9d30-0b6bf3081a42",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0        0.045662\n",
+       "1        0.043137\n",
+       "2        0.056872\n",
+       "3        0.041431\n",
+       "4        0.074627\n",
+       "           ...   \n",
+       "39639    0.037572\n",
+       "39640    0.039634\n",
+       "39641    0.033937\n",
+       "39642    0.020528\n",
+       "39643    0.063694\n",
+       "Name: global_rate_positive_words, Length: 39644, dtype: float64"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df[\"global_rate_positive_words\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aca6a66a-1489-4589-b2f8-96650246e049",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "## Clasificación"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "5b3754d2-9e06-4cf4-bfb4-c593658a1644",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Index(['url', 'timedelta', 'n_tokens_title', 'n_tokens_content',\n",
+       "       'n_unique_tokens', 'n_non_stop_words', 'n_non_stop_unique_tokens',\n",
+       "       'num_hrefs', 'num_self_hrefs', 'num_imgs', 'num_videos',\n",
+       "       'average_token_length', 'num_keywords', 'data_channel_is_lifestyle',\n",
+       "       'data_channel_is_entertainment', 'data_channel_is_bus',\n",
+       "       'data_channel_is_socmed', 'data_channel_is_tech',\n",
+       "       'data_channel_is_world', 'kw_min_min', 'kw_max_min', 'kw_avg_min',\n",
+       "       'kw_min_max', 'kw_max_max', 'kw_avg_max', 'kw_min_avg', 'kw_max_avg',\n",
+       "       'kw_avg_avg', 'self_reference_min_shares', 'self_reference_max_shares',\n",
+       "       'self_reference_avg_sharess', 'weekday_is_monday', 'weekday_is_tuesday',\n",
+       "       'weekday_is_wednesday', 'weekday_is_thursday', 'weekday_is_friday',\n",
+       "       'weekday_is_saturday', 'weekday_is_sunday', 'is_weekend', 'LDA_00',\n",
+       "       'LDA_01', 'LDA_02', 'LDA_03', 'LDA_04', 'global_subjectivity',\n",
+       "       'global_sentiment_polarity', 'global_rate_positive_words',\n",
+       "       'global_rate_negative_words', 'rate_positive_words',\n",
+       "       'rate_negative_words', 'avg_positive_polarity', 'min_positive_polarity',\n",
+       "       'max_positive_polarity', 'avg_negative_polarity',\n",
+       "       'min_negative_polarity', 'max_negative_polarity', 'title_subjectivity',\n",
+       "       'title_sentiment_polarity', 'abs_title_subjectivity',\n",
+       "       'abs_title_sentiment_polarity', 'shares'],\n",
+       "      dtype='object')"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "22f3b7b9-174f-437d-ace2-ec5a286b2909",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_cont=['n_tokens_title', 'n_tokens_content',\n",
+    "       'n_unique_tokens', 'n_non_stop_words', 'n_non_stop_unique_tokens',\n",
+    "       'num_hrefs', 'num_self_hrefs', 'num_imgs', 'num_videos','average_token_length', 'num_keywords','kw_min_min', 'kw_max_min', 'kw_avg_min',\n",
+    "       'kw_min_max', 'kw_max_max', 'kw_avg_max', 'kw_min_avg', 'kw_max_avg',\n",
+    "       'kw_avg_avg', 'self_reference_min_shares', 'self_reference_max_shares',\n",
+    "       'self_reference_avg_sharess','LDA_00',\n",
+    "       'LDA_01', 'LDA_02', 'LDA_03', 'LDA_04','global_subjectivity',\n",
+    "       'global_sentiment_polarity', 'global_rate_positive_words',\n",
+    "       'global_rate_negative_words', 'rate_positive_words',\n",
+    "       'rate_negative_words', 'avg_positive_polarity', 'min_positive_polarity',\n",
+    "       'max_positive_polarity', 'avg_negative_polarity',\n",
+    "       'min_negative_polarity', 'max_negative_polarity', 'title_subjectivity',\n",
+    "       'title_sentiment_polarity', 'abs_title_subjectivity',\n",
+    "       'abs_title_sentiment_polarity']\n",
+    "ls_disc=['data_channel_is_lifestyle',\n",
+    "       'data_channel_is_entertainment', 'data_channel_is_bus',\n",
+    "       'data_channel_is_socmed', 'data_channel_is_tech',\n",
+    "       'data_channel_is_world','weekday_is_monday', 'weekday_is_tuesday',\n",
+    "       'weekday_is_wednesday', 'weekday_is_thursday', 'weekday_is_friday',\n",
+    "       'weekday_is_saturday', 'weekday_is_sunday', 'is_weekend']\n",
+    "target= \"shares\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "1f93332d-95e1-4f8d-832c-94f62f6217d9",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "58"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(ls_cont)+len(ls_disc)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3c8c3241-87a6-4b55-a1bd-3af5842c22eb",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "##  Preprocesamiento"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "744b2dea-4b82-4eb0-a870-79edd9c02160",
+   "metadata": {},
+   "source": [
+    "###  Missings"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "14607275-a100-49b3-b471-1fb66fc6ec1e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "missings = df[ls_disc+ls_cont].isna().mean()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "360eadbf-95d8-40f1-9da0-7f5860c20941",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_remove = [feature for feature, missings in missings.items() if missings > 0.35]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "3ac65ded-932b-49a8-9266-e3775a49ccbb",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(ls_remove)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e8d6b456-cf38-4de8-b955-711ab80269c3",
+   "metadata": {},
+   "source": [
+    "###  Imputación"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "6143cd36-da33-4af8-ba39-5d0dadd83b5c",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "data_channel_is_lifestyle        0.0\n",
+       "data_channel_is_entertainment    0.0\n",
+       "data_channel_is_bus              0.0\n",
+       "data_channel_is_socmed           0.0\n",
+       "data_channel_is_tech             0.0\n",
+       "data_channel_is_world            0.0\n",
+       "weekday_is_monday                0.0\n",
+       "weekday_is_tuesday               0.0\n",
+       "weekday_is_wednesday             0.0\n",
+       "weekday_is_thursday              0.0\n",
+       "weekday_is_friday                0.0\n",
+       "weekday_is_saturday              0.0\n",
+       "weekday_is_sunday                0.0\n",
+       "is_weekend                       0.0\n",
+       "n_tokens_title                   0.0\n",
+       "n_tokens_content                 0.0\n",
+       "n_unique_tokens                  0.0\n",
+       "n_non_stop_words                 0.0\n",
+       "n_non_stop_unique_tokens         0.0\n",
+       "num_hrefs                        0.0\n",
+       "num_self_hrefs                   0.0\n",
+       "num_imgs                         0.0\n",
+       "num_videos                       0.0\n",
+       "average_token_length             0.0\n",
+       "num_keywords                     0.0\n",
+       "kw_min_min                       0.0\n",
+       "kw_max_min                       0.0\n",
+       "kw_avg_min                       0.0\n",
+       "kw_min_max                       0.0\n",
+       "kw_max_max                       0.0\n",
+       "kw_avg_max                       0.0\n",
+       "kw_min_avg                       0.0\n",
+       "kw_max_avg                       0.0\n",
+       "kw_avg_avg                       0.0\n",
+       "self_reference_min_shares        0.0\n",
+       "self_reference_max_shares        0.0\n",
+       "self_reference_avg_sharess       0.0\n",
+       "LDA_00                           0.0\n",
+       "LDA_01                           0.0\n",
+       "LDA_02                           0.0\n",
+       "LDA_03                           0.0\n",
+       "LDA_04                           0.0\n",
+       "global_subjectivity              0.0\n",
+       "global_sentiment_polarity        0.0\n",
+       "global_rate_positive_words       0.0\n",
+       "global_rate_negative_words       0.0\n",
+       "rate_positive_words              0.0\n",
+       "rate_negative_words              0.0\n",
+       "avg_positive_polarity            0.0\n",
+       "min_positive_polarity            0.0\n",
+       "max_positive_polarity            0.0\n",
+       "avg_negative_polarity            0.0\n",
+       "min_negative_polarity            0.0\n",
+       "max_negative_polarity            0.0\n",
+       "title_subjectivity               0.0\n",
+       "title_sentiment_polarity         0.0\n",
+       "abs_title_subjectivity           0.0\n",
+       "abs_title_sentiment_polarity     0.0\n",
+       "dtype: float64"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df[ls_disc+ls_cont].isna().mean()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e32696f-73a4-43fd-a0b2-e1228c09c539",
+   "metadata": {},
+   "source": [
+    "### Análisis continuas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "ca6af91d-0a2f-40a4-be85-a70698d720af",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>n_tokens_title</th>\n",
+       "      <th>n_tokens_content</th>\n",
+       "      <th>n_unique_tokens</th>\n",
+       "      <th>n_non_stop_words</th>\n",
+       "      <th>n_non_stop_unique_tokens</th>\n",
+       "      <th>num_hrefs</th>\n",
+       "      <th>num_self_hrefs</th>\n",
+       "      <th>num_imgs</th>\n",
+       "      <th>num_videos</th>\n",
+       "      <th>average_token_length</th>\n",
+       "      <th>...</th>\n",
+       "      <th>avg_positive_polarity</th>\n",
+       "      <th>min_positive_polarity</th>\n",
+       "      <th>max_positive_polarity</th>\n",
+       "      <th>avg_negative_polarity</th>\n",
+       "      <th>min_negative_polarity</th>\n",
+       "      <th>max_negative_polarity</th>\n",
+       "      <th>title_subjectivity</th>\n",
+       "      <th>title_sentiment_polarity</th>\n",
+       "      <th>abs_title_subjectivity</th>\n",
+       "      <th>abs_title_sentiment_polarity</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4.649000e+03</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "      <td>4649.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>10.561626</td>\n",
+       "      <td>505.837169</td>\n",
+       "      <td>0.540869</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.702226</td>\n",
+       "      <td>8.271886</td>\n",
+       "      <td>2.783179</td>\n",
+       "      <td>1.590450</td>\n",
+       "      <td>0.372338</td>\n",
+       "      <td>4.699918</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.340932</td>\n",
+       "      <td>0.085876</td>\n",
+       "      <td>0.743252</td>\n",
+       "      <td>-0.236936</td>\n",
+       "      <td>-0.498753</td>\n",
+       "      <td>-0.092153</td>\n",
+       "      <td>0.175158</td>\n",
+       "      <td>0.035786</td>\n",
+       "      <td>0.370444</td>\n",
+       "      <td>0.058779</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>2.104447</td>\n",
+       "      <td>274.922558</td>\n",
+       "      <td>0.075945</td>\n",
+       "      <td>2.340479e-09</td>\n",
+       "      <td>0.075257</td>\n",
+       "      <td>4.902894</td>\n",
+       "      <td>2.054520</td>\n",
+       "      <td>1.523356</td>\n",
+       "      <td>0.604502</td>\n",
+       "      <td>0.250288</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.066796</td>\n",
+       "      <td>0.034434</td>\n",
+       "      <td>0.198676</td>\n",
+       "      <td>0.092139</td>\n",
+       "      <td>0.264849</td>\n",
+       "      <td>0.044022</td>\n",
+       "      <td>0.253001</td>\n",
+       "      <td>0.104434</td>\n",
+       "      <td>0.179712</td>\n",
+       "      <td>0.093444</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>5.000000</td>\n",
+       "      <td>112.000000</td>\n",
+       "      <td>0.325662</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.433447</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>3.926573</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.149242</td>\n",
+       "      <td>0.033333</td>\n",
+       "      <td>0.200000</td>\n",
+       "      <td>-0.531944</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-0.230769</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>-0.220000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>9.000000</td>\n",
+       "      <td>298.000000</td>\n",
+       "      <td>0.487448</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.650728</td>\n",
+       "      <td>5.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>4.527331</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.296591</td>\n",
+       "      <td>0.050000</td>\n",
+       "      <td>0.600000</td>\n",
+       "      <td>-0.293750</td>\n",
+       "      <td>-0.700000</td>\n",
+       "      <td>-0.125000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.200000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>11.000000</td>\n",
+       "      <td>430.000000</td>\n",
+       "      <td>0.540284</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.701422</td>\n",
+       "      <td>7.000000</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>4.708904</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.340693</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>0.750000</td>\n",
+       "      <td>-0.232440</td>\n",
+       "      <td>-0.500000</td>\n",
+       "      <td>-0.100000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>12.000000</td>\n",
+       "      <td>652.000000</td>\n",
+       "      <td>0.590909</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.753846</td>\n",
+       "      <td>10.000000</td>\n",
+       "      <td>4.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>4.877108</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.384454</td>\n",
+       "      <td>0.100000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>-0.177546</td>\n",
+       "      <td>-0.300000</td>\n",
+       "      <td>-0.050000</td>\n",
+       "      <td>0.350000</td>\n",
+       "      <td>0.050000</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>0.107143</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>16.000000</td>\n",
+       "      <td>1417.000000</td>\n",
+       "      <td>0.804348</td>\n",
+       "      <td>1.000000e+00</td>\n",
+       "      <td>0.941176</td>\n",
+       "      <td>29.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>5.401587</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.568750</td>\n",
+       "      <td>0.166667</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.375000</td>\n",
+       "      <td>0.500000</td>\n",
+       "      <td>0.375000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>8 rows × 44 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "       n_tokens_title  n_tokens_content  n_unique_tokens  n_non_stop_words  \\\n",
+       "count     4649.000000       4649.000000      4649.000000      4.649000e+03   \n",
+       "mean        10.561626        505.837169         0.540869      1.000000e+00   \n",
+       "std          2.104447        274.922558         0.075945      2.340479e-09   \n",
+       "min          5.000000        112.000000         0.325662      1.000000e+00   \n",
+       "25%          9.000000        298.000000         0.487448      1.000000e+00   \n",
+       "50%         11.000000        430.000000         0.540284      1.000000e+00   \n",
+       "75%         12.000000        652.000000         0.590909      1.000000e+00   \n",
+       "max         16.000000       1417.000000         0.804348      1.000000e+00   \n",
+       "\n",
+       "       n_non_stop_unique_tokens    num_hrefs  num_self_hrefs     num_imgs  \\\n",
+       "count               4649.000000  4649.000000     4649.000000  4649.000000   \n",
+       "mean                   0.702226     8.271886        2.783179     1.590450   \n",
+       "std                    0.075257     4.902894        2.054520     1.523356   \n",
+       "min                    0.433447     0.000000        0.000000     0.000000   \n",
+       "25%                    0.650728     5.000000        1.000000     1.000000   \n",
+       "50%                    0.701422     7.000000        3.000000     1.000000   \n",
+       "75%                    0.753846    10.000000        4.000000     2.000000   \n",
+       "max                    0.941176    29.000000        8.000000     8.000000   \n",
+       "\n",
+       "        num_videos  average_token_length  ...  avg_positive_polarity  \\\n",
+       "count  4649.000000           4649.000000  ...            4649.000000   \n",
+       "mean      0.372338              4.699918  ...               0.340932   \n",
+       "std       0.604502              0.250288  ...               0.066796   \n",
+       "min       0.000000              3.926573  ...               0.149242   \n",
+       "25%       0.000000              4.527331  ...               0.296591   \n",
+       "50%       0.000000              4.708904  ...               0.340693   \n",
+       "75%       1.000000              4.877108  ...               0.384454   \n",
+       "max       2.000000              5.401587  ...               0.568750   \n",
+       "\n",
+       "       min_positive_polarity  max_positive_polarity  avg_negative_polarity  \\\n",
+       "count            4649.000000            4649.000000            4649.000000   \n",
+       "mean                0.085876               0.743252              -0.236936   \n",
+       "std                 0.034434               0.198676               0.092139   \n",
+       "min                 0.033333               0.200000              -0.531944   \n",
+       "25%                 0.050000               0.600000              -0.293750   \n",
+       "50%                 0.100000               0.750000              -0.232440   \n",
+       "75%                 0.100000               1.000000              -0.177546   \n",
+       "max                 0.166667               1.000000               0.000000   \n",
+       "\n",
+       "       min_negative_polarity  max_negative_polarity  title_subjectivity  \\\n",
+       "count            4649.000000            4649.000000         4649.000000   \n",
+       "mean               -0.498753              -0.092153            0.175158   \n",
+       "std                 0.264849               0.044022            0.253001   \n",
+       "min                -1.000000              -0.230769            0.000000   \n",
+       "25%                -0.700000              -0.125000            0.000000   \n",
+       "50%                -0.500000              -0.100000            0.000000   \n",
+       "75%                -0.300000              -0.050000            0.350000   \n",
+       "max                 0.000000               0.000000            1.000000   \n",
+       "\n",
+       "       title_sentiment_polarity  abs_title_subjectivity  \\\n",
+       "count               4649.000000             4649.000000   \n",
+       "mean                   0.035786                0.370444   \n",
+       "std                    0.104434                0.179712   \n",
+       "min                   -0.220000                0.000000   \n",
+       "25%                    0.000000                0.200000   \n",
+       "50%                    0.000000                0.500000   \n",
+       "75%                    0.050000                0.500000   \n",
+       "max                    0.375000                0.500000   \n",
+       "\n",
+       "       abs_title_sentiment_polarity  \n",
+       "count                   4649.000000  \n",
+       "mean                       0.058779  \n",
+       "std                        0.093444  \n",
+       "min                        0.000000  \n",
+       "25%                        0.000000  \n",
+       "50%                        0.000000  \n",
+       "75%                        0.107143  \n",
+       "max                        0.375000  \n",
+       "\n",
+       "[8 rows x 44 columns]"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df[ls_cont].describe()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e2530b87-ee84-4b18-af51-cbb0cc7fabf1",
+   "metadata": {},
+   "source": [
+    "### Análisis discretas"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "144e4a64-c06a-4ee8-b589-c85f9c70efaf",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def freq_discrete(df, features):\n",
+    "    for feature in features:\n",
+    "        print(f\"Feature: {feature}\")\n",
+    "        abs_ = df[feature].value_counts(dropna=False).to_frame().rename(columns={feature: \"Absolute frequency\"})\n",
+    "        rel_ = df[feature].value_counts(dropna=False, normalize= True).to_frame().rename(columns={feature: \"Relative frequency\"})\n",
+    "        freq = abs_.join(rel_)\n",
+    "        freq[\"Accumulated frequency\"] = freq[\"Absolute frequency\"].cumsum()\n",
+    "        freq[\"Accumulated %\"] = freq[\"Relative frequency\"].cumsum()\n",
+    "        freq[\"Absolute frequency\"] = freq[\"Absolute frequency\"].map(lambda x: \"{:,.0f}\".format(x))\n",
+    "        freq[\"Relative frequency\"] = freq[\"Relative frequency\"].map(lambda x: \"{:,.2%}\".format(x))\n",
+    "        freq[\"Accumulated frequency\"] = freq[\"Accumulated frequency\"].map(lambda x: \"{:,.0f}\".format(x))\n",
+    "        freq[\"Accumulated %\"] = freq[\"Accumulated %\"].map(lambda x: \"{:,.2%}\".format(x))\n",
+    "        display(freq)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "de554995-5455-42cf-9e96-9ddd7cd0f7e2",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_lifestyle\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>37,545</td>\n",
+       "      <td>94.71%</td>\n",
+       "      <td>37,545</td>\n",
+       "      <td>94.71%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>2,099</td>\n",
+       "      <td>5.29%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             37,545             94.71%                37,545        94.71%\n",
+       "1.0              2,099              5.29%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_entertainment\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,587</td>\n",
+       "      <td>82.20%</td>\n",
+       "      <td>32,587</td>\n",
+       "      <td>82.20%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>7,057</td>\n",
+       "      <td>17.80%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,587             82.20%                32,587        82.20%\n",
+       "1.0              7,057             17.80%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_bus\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>33,386</td>\n",
+       "      <td>84.21%</td>\n",
+       "      <td>33,386</td>\n",
+       "      <td>84.21%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>6,258</td>\n",
+       "      <td>15.79%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             33,386             84.21%                33,386        84.21%\n",
+       "1.0              6,258             15.79%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_socmed\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>37,321</td>\n",
+       "      <td>94.14%</td>\n",
+       "      <td>37,321</td>\n",
+       "      <td>94.14%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>2,323</td>\n",
+       "      <td>5.86%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             37,321             94.14%                37,321        94.14%\n",
+       "1.0              2,323              5.86%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_tech\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,298</td>\n",
+       "      <td>81.47%</td>\n",
+       "      <td>32,298</td>\n",
+       "      <td>81.47%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>7,346</td>\n",
+       "      <td>18.53%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,298             81.47%                32,298        81.47%\n",
+       "1.0              7,346             18.53%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: data_channel_is_world\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>31,217</td>\n",
+       "      <td>78.74%</td>\n",
+       "      <td>31,217</td>\n",
+       "      <td>78.74%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>8,427</td>\n",
+       "      <td>21.26%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             31,217             78.74%                31,217        78.74%\n",
+       "1.0              8,427             21.26%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_monday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,983</td>\n",
+       "      <td>83.20%</td>\n",
+       "      <td>32,983</td>\n",
+       "      <td>83.20%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>6,661</td>\n",
+       "      <td>16.80%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,983             83.20%                32,983        83.20%\n",
+       "1.0              6,661             16.80%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_tuesday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,254</td>\n",
+       "      <td>81.36%</td>\n",
+       "      <td>32,254</td>\n",
+       "      <td>81.36%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>7,390</td>\n",
+       "      <td>18.64%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,254             81.36%                32,254        81.36%\n",
+       "1.0              7,390             18.64%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_wednesday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,209</td>\n",
+       "      <td>81.25%</td>\n",
+       "      <td>32,209</td>\n",
+       "      <td>81.25%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>7,435</td>\n",
+       "      <td>18.75%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,209             81.25%                32,209        81.25%\n",
+       "1.0              7,435             18.75%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_thursday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>32,377</td>\n",
+       "      <td>81.67%</td>\n",
+       "      <td>32,377</td>\n",
+       "      <td>81.67%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>7,267</td>\n",
+       "      <td>18.33%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             32,377             81.67%                32,377        81.67%\n",
+       "1.0              7,267             18.33%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_friday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>33,943</td>\n",
+       "      <td>85.62%</td>\n",
+       "      <td>33,943</td>\n",
+       "      <td>85.62%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>5,701</td>\n",
+       "      <td>14.38%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             33,943             85.62%                33,943        85.62%\n",
+       "1.0              5,701             14.38%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_saturday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>37,191</td>\n",
+       "      <td>93.81%</td>\n",
+       "      <td>37,191</td>\n",
+       "      <td>93.81%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>2,453</td>\n",
+       "      <td>6.19%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             37,191             93.81%                37,191        93.81%\n",
+       "1.0              2,453              6.19%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: weekday_is_sunday\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>36,907</td>\n",
+       "      <td>93.10%</td>\n",
+       "      <td>36,907</td>\n",
+       "      <td>93.10%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>2,737</td>\n",
+       "      <td>6.90%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             36,907             93.10%                36,907        93.10%\n",
+       "1.0              2,737              6.90%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Feature: is_weekend\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Absolute frequency</th>\n",
+       "      <th>Relative frequency</th>\n",
+       "      <th>Accumulated frequency</th>\n",
+       "      <th>Accumulated %</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0.0</th>\n",
+       "      <td>34,454</td>\n",
+       "      <td>86.91%</td>\n",
+       "      <td>34,454</td>\n",
+       "      <td>86.91%</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1.0</th>\n",
+       "      <td>5,190</td>\n",
+       "      <td>13.09%</td>\n",
+       "      <td>39,644</td>\n",
+       "      <td>100.00%</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Absolute frequency Relative frequency Accumulated frequency Accumulated %\n",
+       "0.0             34,454             86.91%                34,454        86.91%\n",
+       "1.0              5,190             13.09%                39,644       100.00%"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "freq_discrete(df,ls_disc)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9241dfe3-4fb8-4a42-a8d6-ace9ade2a09c",
+   "metadata": {},
+   "source": [
+    "### Remoción outlayers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "4970555a-db1d-40b6-86c0-eed928d93139",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_bounds(df, feature):\n",
+    "    q3 = df[feature].quantile(0.75)\n",
+    "    q1 = df[feature].quantile(0.25)\n",
+    "    iqr = q3 - q1\n",
+    "    return pd.Interval(q1-1.5*iqr, q3+1.5*iqr, closed=\"both\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "5742a115-29e5-4b5d-8a50-74917274ba5d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def remove_extrema(df, features):\n",
+    "    n = df.shape[0]\n",
+    "    dc_ol = {feature: get_bounds(df, feature) for feature in ls_cont}\n",
+    "    for feature, range_ in dc_ol.items():\n",
+    "        df = df[df[feature].map(lambda x: x in dc_ol[feature])].reset_index(drop=True)\n",
+    "    print(df.shape[0]/n)\n",
+    "    return df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "6395d6e6-1c7a-4e0a-9783-f3e673fba492",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.11726869135304208\n"
+     ]
+    }
+   ],
+   "source": [
+    "df=remove_extrema(df, ls_cont)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "60539d99-75ea-46bd-95ef-88cd42731d6a",
+   "metadata": {},
+   "source": [
+    "### Unarias"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "4f69241a-afeb-4406-a191-18e8379c1576",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "aux = df[ls_cont+ls_disc].nunique()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "1ac1db89-0eb3-4575-b0f1-e45921f6c304",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_drop = [feature for feature, freq in aux.items() if freq == 1]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "9897575e-fb78-4074-b81d-6675eaf47e55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = df.drop(columns=ls_drop)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "4420e461-7214-404d-9437-793d9f02b1fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_cont = [x for x in ls_cont if x not in ls_drop]\n",
+    "ls_disc = [x for x in ls_disc if x not in ls_drop]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e9915a01-7e56-43d5-aaef-0a77b004b7d4",
+   "metadata": {},
+   "source": [
+    "### TAD"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "ff156d9e-1513-4541-a7f2-f1e45954bce6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a=df.drop(columns= [\"url\", \"timedelta\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "9bc8f67e-0269-402f-9a9f-10ec0c804e64",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "a.to_csv(\"tad_news.csv\", index= False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9dff3de6-34bd-47d9-b12d-57fa9503fa10",
+   "metadata": {},
+   "source": [
+    "## entrenamiento"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "069f64b4-b1d0-4acd-83b2-65949fa7f7ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.linear_model import LinearRegression"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "6ca7404c-9196-49dd-9472-3aa3cb315f3f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tad= pd.read_csv(\"tad_news.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "c1383237-ba75-462f-bb08-098f7fcac350",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Index(['n_tokens_title', 'n_tokens_content', 'n_unique_tokens',\n",
+       "       'n_non_stop_words', 'n_non_stop_unique_tokens', 'num_hrefs',\n",
+       "       'num_self_hrefs', 'num_imgs', 'num_videos', 'average_token_length',\n",
+       "       'num_keywords', 'data_channel_is_lifestyle',\n",
+       "       'data_channel_is_entertainment', 'data_channel_is_bus',\n",
+       "       'data_channel_is_socmed', 'data_channel_is_tech',\n",
+       "       'data_channel_is_world', 'kw_min_min', 'kw_max_min', 'kw_avg_min',\n",
+       "       'kw_min_max', 'kw_avg_max', 'kw_min_avg', 'kw_max_avg', 'kw_avg_avg',\n",
+       "       'self_reference_min_shares', 'self_reference_max_shares',\n",
+       "       'self_reference_avg_sharess', 'weekday_is_monday', 'weekday_is_tuesday',\n",
+       "       'weekday_is_wednesday', 'weekday_is_thursday', 'weekday_is_friday',\n",
+       "       'weekday_is_saturday', 'weekday_is_sunday', 'is_weekend', 'LDA_00',\n",
+       "       'LDA_01', 'LDA_02', 'LDA_03', 'LDA_04', 'global_subjectivity',\n",
+       "       'global_sentiment_polarity', 'global_rate_positive_words',\n",
+       "       'global_rate_negative_words', 'rate_positive_words',\n",
+       "       'rate_negative_words', 'avg_positive_polarity', 'min_positive_polarity',\n",
+       "       'max_positive_polarity', 'avg_negative_polarity',\n",
+       "       'min_negative_polarity', 'max_negative_polarity', 'title_subjectivity',\n",
+       "       'title_sentiment_polarity', 'abs_title_subjectivity',\n",
+       "       'abs_title_sentiment_polarity', 'shares'],\n",
+       "      dtype='object')"
+      ]
+     },
+     "execution_count": 46,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tad.columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 80,
+   "id": "8d739d35-2354-4f43-a497-c9436d1f49e5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_ten= [\"n_tokens_title\", \"num_imgs\",\"global_rate_positive_words\",\"data_channel_is_lifestyle\",\n",
+    "       \"data_channel_is_entertainment\", \"data_channel_is_bus\",\n",
+    "       \"data_channel_is_socmed\", \"data_channel_is_tech\",\n",
+    "       \"data_channel_is_world\",\"abs_title_sentiment_polarity\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 78,
+   "id": "c0fdb20f-96b5-4f81-9394-65f03972a9a3",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "10"
+      ]
+     },
+     "execution_count": 78,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "len(ls_ten)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 81,
+   "id": "bde904d2-759d-4d3a-ad09-4dfce7d3a969",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X= tad[ls_ten]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 82,
+   "id": "317e0208-1eaa-4c56-a939-04707b5dc09c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y = tad[\"shares\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 83,
+   "id": "712def4f-178e-4732-a620-d892c3c57c69",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "linreg = LinearRegression()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 84,
+   "id": "8e5d46b5-689c-46e7-a911-6b5ca475d7f1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "LinearRegression()"
+      ]
+     },
+     "execution_count": 84,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "linreg.fit(X,y )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d9c50bf0-7b3f-4214-ba69-507531e93adf",
+   "metadata": {},
+   "source": [
+    "## Interpretación"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 85,
+   "id": "5a7faf54-68fc-4779-95db-327ba7a73839",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([   78.73141395,    56.04039632,  2315.06554149, -2382.08518866,\n",
+       "       -3551.60220263, -3258.50549815, -2026.98711355, -2877.56030396,\n",
+       "       -3466.05881167,  2066.49834394])"
+      ]
+     },
+     "execution_count": 85,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "linreg.coef_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 86,
+   "id": "139d0cbf-a3db-4d2e-9417-0e9d1b8e0913",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>data_channel_is_entertainment</td>\n",
+       "      <td>-3551.602203</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>data_channel_is_world</td>\n",
+       "      <td>-3466.058812</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>data_channel_is_bus</td>\n",
+       "      <td>-3258.505498</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>data_channel_is_tech</td>\n",
+       "      <td>-2877.560304</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>data_channel_is_lifestyle</td>\n",
+       "      <td>-2382.085189</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>data_channel_is_socmed</td>\n",
+       "      <td>-2026.987114</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>num_imgs</td>\n",
+       "      <td>56.040396</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>n_tokens_title</td>\n",
+       "      <td>78.731414</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>abs_title_sentiment_polarity</td>\n",
+       "      <td>2066.498344</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>global_rate_positive_words</td>\n",
+       "      <td>2315.065541</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                               0            1\n",
+       "4  data_channel_is_entertainment -3551.602203\n",
+       "8          data_channel_is_world -3466.058812\n",
+       "5            data_channel_is_bus -3258.505498\n",
+       "7           data_channel_is_tech -2877.560304\n",
+       "3      data_channel_is_lifestyle -2382.085189\n",
+       "6         data_channel_is_socmed -2026.987114\n",
+       "1                       num_imgs    56.040396\n",
+       "0                 n_tokens_title    78.731414\n",
+       "9   abs_title_sentiment_polarity  2066.498344\n",
+       "2     global_rate_positive_words  2315.065541"
+      ]
+     },
+     "execution_count": 86,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pd.DataFrame(zip(X.columns, linreg.coef_)).sort_values(by=1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "324ee6fd-c525-425a-933f-719b86c4ae33",
+   "metadata": {},
+   "source": [
+    "Podemos asociar como impacto positivo a los coeficientes positivos a la hora de obtener shares, mientras que podríamos analizar que categorias no son tan comportidas y generan un impacto negativo y es curioso como el polarizar en las noticias lleva a tanto impacto mediatico"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1851f066-aca6-4be9-b507-4b07ae6bf2ac",
+   "metadata": {},
+   "source": [
+    "## Métrica"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 87,
+   "id": "7aba3484-311c-4307-b9c1-b283e66bb496",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tad[\"y_hat\"]=linreg.predict(X)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 88,
+   "id": "3aabc148-bf8c-460c-9735-196a7b4d7db1",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0       2076.398530\n",
+       "1       1664.679227\n",
+       "2       5654.747055\n",
+       "3       2824.888505\n",
+       "4       2803.764495\n",
+       "           ...     \n",
+       "4644    3162.881468\n",
+       "4645    1633.448859\n",
+       "4646    2409.799510\n",
+       "4647    2567.507501\n",
+       "4648    2291.936878\n",
+       "Name: y_hat, Length: 4649, dtype: float64"
+      ]
+     },
+     "execution_count": 88,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tad[\"y_hat\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 89,
+   "id": "648f8d1f-bf2a-4fba-9ae4-4f77c6f18da5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tad[\"error\"] = abs(tad[\"shares\"]-tad[\"y_hat\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 91,
+   "id": "8167dbaf-2f53-4974-bcdf-bb68cf597592",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1796.2348721085602"
+      ]
+     },
+     "execution_count": 91,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sum(tad[\"error\"])/tad.shape[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 96,
+   "id": "fefd1848-fb55-4c14-8052-49b06737d2ec",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>shares</th>\n",
+       "      <th>y_hat</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>2600</td>\n",
+       "      <td>2076.398530</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1000</td>\n",
+       "      <td>1664.679227</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>774</td>\n",
+       "      <td>5654.747055</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>1600</td>\n",
+       "      <td>2824.888505</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>1700</td>\n",
+       "      <td>2803.764495</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4644</th>\n",
+       "      <td>1300</td>\n",
+       "      <td>3162.881468</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4645</th>\n",
+       "      <td>1400</td>\n",
+       "      <td>1633.448859</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4646</th>\n",
+       "      <td>2900</td>\n",
+       "      <td>2409.799510</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4647</th>\n",
+       "      <td>3200</td>\n",
+       "      <td>2567.507501</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4648</th>\n",
+       "      <td>1500</td>\n",
+       "      <td>2291.936878</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>4649 rows × 2 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "      shares        y_hat\n",
+       "0       2600  2076.398530\n",
+       "1       1000  1664.679227\n",
+       "2        774  5654.747055\n",
+       "3       1600  2824.888505\n",
+       "4       1700  2803.764495\n",
+       "...      ...          ...\n",
+       "4644    1300  3162.881468\n",
+       "4645    1400  1633.448859\n",
+       "4646    2900  2409.799510\n",
+       "4647    3200  2567.507501\n",
+       "4648    1500  2291.936878\n",
+       "\n",
+       "[4649 rows x 2 columns]"
+      ]
+     },
+     "execution_count": 96,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "tad[[\"shares\",\"y_hat\"]]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f03b712-d5e8-4428-83ed-650f5f554f41",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "## Nuevo modelo"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 99,
+   "id": "f0e3b4c5-f9af-45d5-b908-d6df3866e0ff",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ls_all= [x for x in tad.columns if x != \"shares\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 102,
+   "id": "af4e5761-31c0-4b8a-b218-324f00afde0f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X_all = tad[ls_all]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 105,
+   "id": "3af8306c-e2d2-4833-a585-8311839841c3",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "LinearRegression()"
+      ]
+     },
+     "execution_count": 105,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "linreg.fit(X_all, y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 110,
+   "id": "48e42632-5d88-46ee-b2ae-23669606206b",
+   "metadata": {
+    "scrolled": true,
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>data_channel_is_entertainment</td>\n",
+       "      <td>-9.749747e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>data_channel_is_world</td>\n",
+       "      <td>-9.514916e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>data_channel_is_bus</td>\n",
+       "      <td>-8.945147e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>data_channel_is_tech</td>\n",
+       "      <td>-7.899388e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>data_channel_is_lifestyle</td>\n",
+       "      <td>-6.539226e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>data_channel_is_socmed</td>\n",
+       "      <td>-5.564422e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>n_non_stop_words</td>\n",
+       "      <td>-1.233999e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>57</th>\n",
+       "      <td>y_hat</td>\n",
+       "      <td>-2.745169e+07</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>37</th>\n",
+       "      <td>LDA_01</td>\n",
+       "      <td>-2.150503e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>39</th>\n",
+       "      <td>LDA_03</td>\n",
+       "      <td>-2.143145e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>38</th>\n",
+       "      <td>LDA_02</td>\n",
+       "      <td>-2.131892e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>40</th>\n",
+       "      <td>LDA_04</td>\n",
+       "      <td>-2.107297e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>36</th>\n",
+       "      <td>LDA_00</td>\n",
+       "      <td>-2.077432e+04</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>n_unique_tokens</td>\n",
+       "      <td>-3.151403e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>46</th>\n",
+       "      <td>rate_negative_words</td>\n",
+       "      <td>-1.855767e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>42</th>\n",
+       "      <td>global_sentiment_polarity</td>\n",
+       "      <td>-1.048293e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>45</th>\n",
+       "      <td>rate_positive_words</td>\n",
+       "      <td>-8.119188e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>34</th>\n",
+       "      <td>weekday_is_sunday</td>\n",
+       "      <td>-3.135404e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>33</th>\n",
+       "      <td>weekday_is_saturday</td>\n",
+       "      <td>-1.605632e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>41</th>\n",
+       "      <td>global_subjectivity</td>\n",
+       "      <td>-1.165386e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>53</th>\n",
+       "      <td>title_subjectivity</td>\n",
+       "      <td>-6.912584e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>kw_min_min</td>\n",
+       "      <td>-2.769726e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50</th>\n",
+       "      <td>avg_negative_polarity</td>\n",
+       "      <td>-1.283576e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>num_self_hrefs</td>\n",
+       "      <td>-6.953276e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>kw_avg_min</td>\n",
+       "      <td>-3.137283e-01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>n_tokens_content</td>\n",
+       "      <td>-3.105912e-01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>22</th>\n",
+       "      <td>kw_min_avg</td>\n",
+       "      <td>-2.729797e-02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>26</th>\n",
+       "      <td>self_reference_max_shares</td>\n",
+       "      <td>-2.128601e-02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>kw_min_max</td>\n",
+       "      <td>-9.735107e-03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23</th>\n",
+       "      <td>kw_max_avg</td>\n",
+       "      <td>-5.218506e-03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>21</th>\n",
+       "      <td>kw_avg_max</td>\n",
+       "      <td>-6.103516e-05</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25</th>\n",
+       "      <td>self_reference_min_shares</td>\n",
+       "      <td>6.871033e-02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>27</th>\n",
+       "      <td>self_reference_avg_sharess</td>\n",
+       "      <td>7.701111e-02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>kw_max_min</td>\n",
+       "      <td>8.036423e-02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>24</th>\n",
+       "      <td>kw_avg_avg</td>\n",
+       "      <td>4.006958e-01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>58</th>\n",
+       "      <td>error</td>\n",
+       "      <td>1.064740e+00</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>num_hrefs</td>\n",
+       "      <td>1.205217e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>55</th>\n",
+       "      <td>abs_title_subjectivity</td>\n",
+       "      <td>1.489571e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>num_keywords</td>\n",
+       "      <td>2.114159e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>51</th>\n",
+       "      <td>min_negative_polarity</td>\n",
+       "      <td>4.569842e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>30</th>\n",
+       "      <td>weekday_is_wednesday</td>\n",
+       "      <td>4.736863e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>54</th>\n",
+       "      <td>title_sentiment_polarity</td>\n",
+       "      <td>7.304830e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>31</th>\n",
+       "      <td>weekday_is_thursday</td>\n",
+       "      <td>7.497703e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>49</th>\n",
+       "      <td>max_positive_polarity</td>\n",
+       "      <td>7.915037e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>average_token_length</td>\n",
+       "      <td>8.095014e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>num_videos</td>\n",
+       "      <td>9.071064e+01</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>52</th>\n",
+       "      <td>max_negative_polarity</td>\n",
+       "      <td>1.118686e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>29</th>\n",
+       "      <td>weekday_is_tuesday</td>\n",
+       "      <td>1.144714e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>48</th>\n",
+       "      <td>min_positive_polarity</td>\n",
+       "      <td>1.792411e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>28</th>\n",
+       "      <td>weekday_is_monday</td>\n",
+       "      <td>2.247217e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>32</th>\n",
+       "      <td>weekday_is_friday</td>\n",
+       "      <td>3.486605e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>47</th>\n",
+       "      <td>avg_positive_polarity</td>\n",
+       "      <td>7.746580e+02</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>35</th>\n",
+       "      <td>is_weekend</td>\n",
+       "      <td>1.056268e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>n_non_stop_unique_tokens</td>\n",
+       "      <td>1.710608e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>44</th>\n",
+       "      <td>global_rate_negative_words</td>\n",
+       "      <td>7.176438e+03</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>num_imgs</td>\n",
+       "      <td>1.538403e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>n_tokens_title</td>\n",
+       "      <td>2.161310e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>56</th>\n",
+       "      <td>abs_title_sentiment_polarity</td>\n",
+       "      <td>5.672887e+10</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>43</th>\n",
+       "      <td>global_rate_positive_words</td>\n",
+       "      <td>6.355245e+10</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                0             1\n",
+       "12  data_channel_is_entertainment -9.749747e+10\n",
+       "16          data_channel_is_world -9.514916e+10\n",
+       "13            data_channel_is_bus -8.945147e+10\n",
+       "15           data_channel_is_tech -7.899388e+10\n",
+       "11      data_channel_is_lifestyle -6.539226e+10\n",
+       "14         data_channel_is_socmed -5.564422e+10\n",
+       "3                n_non_stop_words -1.233999e+10\n",
+       "57                          y_hat -2.745169e+07\n",
+       "37                         LDA_01 -2.150503e+04\n",
+       "39                         LDA_03 -2.143145e+04\n",
+       "38                         LDA_02 -2.131892e+04\n",
+       "40                         LDA_04 -2.107297e+04\n",
+       "36                         LDA_00 -2.077432e+04\n",
+       "2                 n_unique_tokens -3.151403e+03\n",
+       "46            rate_negative_words -1.855767e+03\n",
+       "42      global_sentiment_polarity -1.048293e+03\n",
+       "45            rate_positive_words -8.119188e+02\n",
+       "34              weekday_is_sunday -3.135404e+02\n",
+       "33            weekday_is_saturday -1.605632e+02\n",
+       "41            global_subjectivity -1.165386e+02\n",
+       "53             title_subjectivity -6.912584e+01\n",
+       "17                     kw_min_min -2.769726e+01\n",
+       "50          avg_negative_polarity -1.283576e+01\n",
+       "6                  num_self_hrefs -6.953276e+00\n",
+       "19                     kw_avg_min -3.137283e-01\n",
+       "1                n_tokens_content -3.105912e-01\n",
+       "22                     kw_min_avg -2.729797e-02\n",
+       "26      self_reference_max_shares -2.128601e-02\n",
+       "20                     kw_min_max -9.735107e-03\n",
+       "23                     kw_max_avg -5.218506e-03\n",
+       "21                     kw_avg_max -6.103516e-05\n",
+       "25      self_reference_min_shares  6.871033e-02\n",
+       "27     self_reference_avg_sharess  7.701111e-02\n",
+       "18                     kw_max_min  8.036423e-02\n",
+       "24                     kw_avg_avg  4.006958e-01\n",
+       "58                          error  1.064740e+00\n",
+       "5                       num_hrefs  1.205217e+01\n",
+       "55         abs_title_subjectivity  1.489571e+01\n",
+       "10                   num_keywords  2.114159e+01\n",
+       "51          min_negative_polarity  4.569842e+01\n",
+       "30           weekday_is_wednesday  4.736863e+01\n",
+       "54       title_sentiment_polarity  7.304830e+01\n",
+       "31            weekday_is_thursday  7.497703e+01\n",
+       "49          max_positive_polarity  7.915037e+01\n",
+       "9            average_token_length  8.095014e+01\n",
+       "8                      num_videos  9.071064e+01\n",
+       "52          max_negative_polarity  1.118686e+02\n",
+       "29             weekday_is_tuesday  1.144714e+02\n",
+       "48          min_positive_polarity  1.792411e+02\n",
+       "28              weekday_is_monday  2.247217e+02\n",
+       "32              weekday_is_friday  3.486605e+02\n",
+       "47          avg_positive_polarity  7.746580e+02\n",
+       "35                     is_weekend  1.056268e+03\n",
+       "4        n_non_stop_unique_tokens  1.710608e+03\n",
+       "44     global_rate_negative_words  7.176438e+03\n",
+       "7                        num_imgs  1.538403e+09\n",
+       "0                  n_tokens_title  2.161310e+09\n",
+       "56   abs_title_sentiment_polarity  5.672887e+10\n",
+       "43     global_rate_positive_words  6.355245e+10"
+      ]
+     },
+     "execution_count": 110,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pd.DataFrame(zip(X_all.columns, linreg.coef_)).sort_values(by=1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b3e4df7b-6f63-440e-83c5-7098c1beaebc",
+   "metadata": {},
+   "source": [
+    "Ninguno de los coeficientes estan cercanos a los nuevos valores, intuyo que se debe a que al tener mayor cantidad de variables la parte en la que ninfluye se disminuye y le permite dar mejores aproximaciones por muy mínimas que sean; ya si son lo suficientemente represantativas para seguir con ellas, eso es diferente."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 108,
+   "id": "0c8c1179-4e48-45c5-9703-e55efd9f707a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tad[\"new_y\"] = linreg.predict(X_all)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 114,
+   "id": "1fb7f1a3-165f-44d5-a41e-cd5b4534a52a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "tad[\"new_error\"] =abs(tad[\"shares\"]-tad[\"new_y\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 115,
+   "id": "e9babce3-8ca0-478b-ac21-1a55909b7395",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1004.793032233652"
+      ]
+     },
+     "execution_count": 115,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "sum(tad[\"new_error\"])/tad.shape[0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0668d442-ab90-4469-a03b-744678ecc869",
+   "metadata": {},
+   "source": [
+    "El erro se redujo al meter todas las variables, esto se debe a  que tiene toda la información y ya no depende de la interpretación de escoger variables por lo que se cree, en promedio se redujo el error en 600"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "626c8566-fe03-4d00-af26-6e07e17f847f",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "## Pregunta final"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "db3d3975-b74d-4014-b62c-206c814ab69a",
+   "metadata": {},
+   "source": [
+    "Teniendo los mismos datos, creo que podríamos intentar clasificar sabiendo todos los datos a que tipo de canal pertenece tal tipo de noticia que se comparte o tambien en que día fue publicado "
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.10"
+  },
+  "toc-autonumbering": true,
+  "toc-showcode": false,
+  "toc-showmarkdowntxt": false
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
